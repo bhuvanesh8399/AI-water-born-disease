@@ -1,0 +1,7 @@
+[
+  { "week": "2026-W01", "cases": 3, "rainfall": 12, "complaints": 1, "riskScore": 22 },
+  { "week": "2026-W02", "cases": 4, "rainfall": 14, "complaints": 1, "riskScore": 28 },
+  { "week": "2026-W03", "cases": 6, "rainfall": 35, "complaints": 2, "riskScore": 51 },
+  { "week": "2026-W04", "cases": 9, "rainfall": 62, "complaints": 4, "riskScore": 73 },
+  { "week": "2026-W05", "cases": 11, "rainfall": 58, "complaints": 6, "riskScore": 82 }
+]
