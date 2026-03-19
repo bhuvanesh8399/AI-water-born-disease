@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Activity, ShieldAlert, TrendingUp, Sparkles, MapPin } from "lucide-react";
+import { Activity, ShieldAlert, Sparkles, MapPin } from "lucide-react";
 import { getAlerts, getRiskSummary } from "../../services/dataSource";
 import type { AlertItem, RiskSummary } from "../../types/domain";
 import { RiskBadge } from "../../components/ui/Badge";

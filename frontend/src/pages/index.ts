@@ -1,0 +1,6 @@
+﻿export { AlertsPage } from './Alerts'
+export { DashboardPage } from './Dashboard'
+export { HeatmapPage } from './Heatmap'
+export { LoginPage } from './Login'
+export { SettingsPage } from './Settings'
+export { TrendsPage } from './Trends'

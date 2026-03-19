@@ -1,29 +1,24 @@
-[
+﻿[
   {
-    "id": "ALRT-1001",
-    "areaId": "VIL_A",
-    "areaName": "Village A",
-    "severity": "CRITICAL",
-    "status": "NEW",
-    "createdAt": "2026-02-06T07:50:00.000Z",
-    "message": "Critical risk detected. Recommend chlorination + field verification within 24 hours."
+    "id": 1,
+    "district_id": 1,
+    "title": "High risk detected",
+    "message": "Risk score 72 with elevated fever cases and water level.",
+    "severity": "high",
+    "status": "new",
+    "source": "risk_engine",
+    "created_at": "2026-03-22T03:00:00Z",
+    "updated_at": "2026-03-22T03:00:00Z"
   },
   {
-    "id": "ALRT-1002",
-    "areaId": "VIL_B",
-    "areaName": "Village B",
-    "severity": "HIGH",
-    "status": "ESCALATED",
-    "createdAt": "2026-02-05T10:10:00.000Z",
-    "message": "Alert not acknowledged. Escalated to higher authority due to rising case trend."
-  },
-  {
-    "id": "ALRT-1003",
-    "areaId": "VIL_C",
-    "areaName": "Village C",
-    "severity": "MEDIUM",
-    "status": "ACK",
-    "createdAt": "2026-02-04T12:40:00.000Z",
-    "message": "Moderate risk. Monitor weekly trends and run awareness drive."
+    "id": 2,
+    "district_id": 2,
+    "title": "Critical cluster warning",
+    "message": "Potential outbreak conditions detected.",
+    "severity": "critical",
+    "status": "in_review",
+    "source": "risk_engine",
+    "created_at": "2026-03-22T02:10:00Z",
+    "updated_at": "2026-03-22T02:10:00Z"
   }
 ]
