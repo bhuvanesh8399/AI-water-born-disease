@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { createBrowserRouter, Outlet } from "react-router-dom";
 import { AppShell } from "../layout/AppShell";
 
@@ -29,6 +30,28 @@ export const router = createBrowserRouter([
       { path: "data", element: <DataIngestPage /> },
       { path: "help", element: <HelpPage /> },
       { path: "settings", element: <SettingsPage /> },
+=======
+import { createBrowserRouter } from "react-router-dom";
+import AppShell from "../layout/AppShell";
+import Dashboard from "../../pages/Dashboard";
+import Heatmap from "../../pages/Heatmap";
+import Trends from "../../pages/Trends";
+import Alerts from "../../pages/Alerts";
+import Settings from "../../pages/Settings";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <AppShell />,
+    children: [
+      { index: true, element: <Dashboard /> },
+      { path: "heatmap", element: <Heatmap /> },
+      { path: "trends", element: <Trends /> },
+      { path: "alerts", element: <Alerts /> },
+      { path: "settings", element: <Settings /> },
+>>>>>>> 32c72f5 (fetch: update)
     ],
   },
 ]);
+
+export default router;

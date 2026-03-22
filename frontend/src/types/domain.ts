@@ -1,5 +1,12 @@
 export type RiskLevel = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
 
+export const RISK_LABELS: Record<RiskLevel, string> = {
+  LOW: "Low Risk",
+  MEDIUM: "Medium Risk",
+  HIGH: "High Risk",
+  CRITICAL: "Critical Risk",
+};
+
 export type AlertStatus = "NEW" | "ACK" | "ESCALATED" | "RESOLVED";
 
 export type Hotspot = {

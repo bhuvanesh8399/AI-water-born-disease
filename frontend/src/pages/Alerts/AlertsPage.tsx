@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { GlassCard } from "../../components/ui/GlassCard";
-import { Button } from "../../components/ui/Button";
+import GlassCard from "../../components/ui/GlassCard";
+import Button from "../../components/ui/Button";
 import { RiskBadge } from "../../components/ui/Badge";
 import type { AlertItem } from "../../types/domain";
 import { acknowledgeAlert, getAlerts } from "../../services/dataSource";

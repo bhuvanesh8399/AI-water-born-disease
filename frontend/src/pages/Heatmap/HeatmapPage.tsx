@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { GlassCard } from "../../components/ui/GlassCard";
+import GlassCard from "../../components/ui/GlassCard";
 import { getRiskSummary } from "../../services/dataSource";
 import type { RiskSummary } from "../../types/domain";
 import { RiskMap } from "../../components/maps/RiskMap";
