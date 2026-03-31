@@ -1,4 +1,4 @@
-﻿export { AlertsPage } from './Alerts'
+export { AlertsPage } from './Alerts'
 export { DashboardPage } from './Dashboard'
 export { HeatmapPage } from './Heatmap'
 export { LoginPage } from './Login'

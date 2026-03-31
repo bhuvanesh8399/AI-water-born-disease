@@ -1,4 +1,4 @@
-﻿import { Link, NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet } from 'react-router-dom'
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard' },
@@ -6,40 +6,26 @@ const navItems = [
   { to: '/trends', label: 'Trends' },
   { to: '/alerts', label: 'Alerts' },
   { to: '/settings', label: 'Settings' },
+  { to: '/login', label: 'Login' },
 ]
 
 export function AppShell() {
   return (
-    <div className="app-shell">
+    <div className="shell">
       <aside className="sidebar">
-        <Link to="/dashboard" className="brand">
-          <span className="brand-badge">EWS</span>
-          <div>
-            <strong>AI Early Warning</strong>
-            <small>Decision-support dashboard</small>
-          </div>
-        </Link>
-
-        <nav className="nav-list">
+        <div className="brand">
+          <strong>AI EWS</strong>
+          <span>CSV-backed district risk demo</span>
+        </div>
+        <nav className="nav">
           {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}
-            >
+            <NavLink key={item.to} to={item.to} className={({ isActive }) => (isActive ? 'nav-link active' : 'nav-link')}>
               {item.label}
             </NavLink>
           ))}
         </nav>
       </aside>
-
-      <main className="main-content">
-        <header className="topbar">
-          <div>
-            <h1>Operational Overview</h1>
-            <p>Real-time district risk visibility, alerts, and trend analysis.</p>
-          </div>
-        </header>
+      <main className="content">
         <Outlet />
       </main>
     </div>

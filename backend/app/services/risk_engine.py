@@ -1,62 +1,58 @@
-﻿from app.core.constants import RISK_BANDS
-from app.db.models import Observation, RiskPrediction
-from sqlalchemy.orm import Session
+from dataclasses import dataclass
+
+from app.core.constants import LOW_RISK_THRESHOLD, MEDIUM_RISK_THRESHOLD
 
 
-def _risk_level(score: float) -> str:
-    for level, (low, high) in RISK_BANDS.items():
-        if low <= score <= high:
-            return level
-    return "critical"
+@dataclass
+class RiskInputs:
+    baseline_water_level: float
+    drainage_score: float
+    sanitation_score: float
+    vulnerability_index: float
+    population_density: float
+    anomaly_score: float
+    previous_alerts_count: int
+    low_income_percent: float
+    health_access_score: float
+    drinking_water_quality_score: float
 
 
-def compute_risk_prediction(db: Session, district_id: int, observed_on) -> RiskPrediction:
-    observation = (
-        db.query(Observation)
-        .filter(Observation.district_id == district_id, Observation.observed_on == observed_on)
-        .first()
+@dataclass
+class RiskResult:
+    score: float
+    risk_level: str
+    explanation: str
+
+
+def _clamp(value: float, upper: float) -> float:
+    return max(0.0, min(value / upper, 1.0))
+
+
+def compute_risk(inputs: RiskInputs) -> RiskResult:
+    score = round(
+        (_clamp(inputs.baseline_water_level, 5.0) * 0.12)
+        + ((1 - _clamp(inputs.drainage_score, 100.0)) * 0.10)
+        + ((1 - _clamp(inputs.sanitation_score, 100.0)) * 0.10)
+        + (_clamp(inputs.vulnerability_index, 1.0) * 0.14)
+        + (_clamp(inputs.population_density, 10000.0) * 0.10)
+        + (_clamp(inputs.anomaly_score, 1.0) * 0.14)
+        + (_clamp(float(inputs.previous_alerts_count), 20.0) * 0.08)
+        + (_clamp(inputs.low_income_percent, 100.0) * 0.08)
+        + ((1 - _clamp(inputs.health_access_score, 100.0)) * 0.07)
+        + ((1 - _clamp(inputs.drinking_water_quality_score, 100.0)) * 0.07),
+        3,
     )
-    if not observation:
-        raise ValueError("Observation not found")
 
-    rainfall_score = min(observation.rainfall_mm / 1.5, 30)
-    water_score = min(observation.water_level / 2.2, 30)
-    fever_score = min(observation.fever_cases * 1.2, 25)
-    contamination_score = min(observation.contamination_index * 20, 15)
+    if score < LOW_RISK_THRESHOLD:
+        risk_level = "low"
+    elif score < MEDIUM_RISK_THRESHOLD:
+        risk_level = "medium"
+    else:
+        risk_level = "high"
 
-    total_score = round(rainfall_score + water_score + fever_score + contamination_score, 1)
-    confidence_score = round(min(0.55 + (observation.contamination_index * 0.25) + 0.15, 0.98), 2)
-    level = _risk_level(total_score)
-
-    factors = []
-    if observation.rainfall_mm > 80:
-        factors.append("Heavy rainfall accumulation")
-    if observation.water_level > 70:
-        factors.append("Elevated water level")
-    if observation.fever_cases > 25:
-        factors.append("Fever case spike")
-    if observation.contamination_index > 0.6:
-        factors.append("High contamination index")
-    if not factors:
-        factors.append("No major abnormal indicators detected")
-
-    recommended_action = {
-        "low": "Continue routine monitoring",
-        "medium": "Increase district-level surveillance",
-        "high": "Deploy rapid response team and validate field indicators",
-        "critical": "Issue immediate public health advisory and emergency intervention",
-    }[level]
-
-    prediction = RiskPrediction(
-        district_id=district_id,
-        predicted_on=observed_on,
-        risk_score=total_score,
-        risk_level=level,
-        confidence_score=confidence_score,
-        contributing_factors=" | ".join(factors),
-        recommended_action=recommended_action,
+    explanation = (
+        f"Score {score:.3f} driven by water level {inputs.baseline_water_level:.2f}, "
+        f"anomaly {inputs.anomaly_score:.3f}, vulnerability {inputs.vulnerability_index:.3f}, "
+        f"and prior alerts {inputs.previous_alerts_count}."
     )
-    db.add(prediction)
-    db.commit()
-    db.refresh(prediction)
-    return prediction
+    return RiskResult(score=score, risk_level=risk_level, explanation=explanation)

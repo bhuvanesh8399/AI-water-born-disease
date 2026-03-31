@@ -1,15 +1,34 @@
-﻿import { ConfigForm } from '../components/settings/ConfigForm'
-import { useSettings } from '../features/settings/hooks'
+import { useEffect, useState } from 'react'
+import { getSettings } from '../services/dataSource'
+import type { SettingsState } from '../types/domain'
 
 export function SettingsPage() {
-  const { data, loading, error, save } = useSettings()
+  const [settings, setSettings] = useState<SettingsState | null>(null)
+  const [error, setError] = useState('')
 
-  if (loading) return <div className="glass-card">Loading settings…</div>
-  if (error || !data) return <div className="glass-card">{error ?? 'No settings found'}</div>
+  useEffect(() => {
+    void getSettings()
+      .then(setSettings)
+      .catch((err: Error) => setError(err.message))
+  }, [])
+
+  if (error) {
+    return <div>Failed to load settings: {error}</div>
+  }
+
+  if (!settings) {
+    return <div>Loading settings...</div>
+  }
 
   return (
-    <div className="page-grid">
-      <ConfigForm initialValues={data.values} onSave={save} />
+    <div>
+      <h1>Settings</h1>
+      <p>Low threshold: {settings.risk_low_threshold}</p>
+      <p>High threshold: {settings.risk_high_threshold}</p>
+      <p>Alerting enabled: {settings.alerting_enabled ? 'Yes' : 'No'}</p>
+      <p>Updated at: {new Date(settings.updated_at).toLocaleString()}</p>
     </div>
   )
 }
+
+export default SettingsPage

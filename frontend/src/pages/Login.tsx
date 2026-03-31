@@ -1,57 +1,37 @@
-﻿import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { STORAGE_KEYS } from '../lib/constants'
-import { endpoints } from '../services/endpoints'
-import { httpPost } from '../services/http'
-import { Button } from '../components/ui/Button'
-
-interface LoginResponse {
-  access_token: string
-  role: string
-  full_name: string
-  email: string
-}
+import { useState } from 'react'
+import { login } from '../services/dataSource'
 
 export function LoginPage() {
-  const navigate = useNavigate()
   const [email, setEmail] = useState('admin@example.com')
   const [password, setPassword] = useState('Admin@123')
-  const [error, setError] = useState<string | null>(null)
+  const [message, setMessage] = useState<string>('Demo mode is read-only. Browse the app without authentication.')
 
   async function handleLogin() {
     try {
-      const response = await httpPost<LoginResponse>(endpoints.authLogin, { email, password })
-      localStorage.setItem(STORAGE_KEYS.token, response.access_token)
-      localStorage.setItem(STORAGE_KEYS.user, JSON.stringify(response))
-      navigate('/dashboard')
+      const response = await login(email, password)
+      setMessage(`Token issued for ${response.email}. Write endpoints remain blocked in demo mode.`)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed')
+      setMessage(err instanceof Error ? err.message : 'Login failed')
     }
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', padding: 24 }}>
-      <div className="glass-card" style={{ width: '100%', maxWidth: 420 }}>
-        <div className="section-title">Sign in</div>
-        <div className="form-grid">
-          <label>
-            <div className="muted">Email</div>
-            <input className="input" value={email} onChange={(event) => setEmail(event.target.value)} />
-          </label>
-          <label>
-            <div className="muted">Password</div>
-            <input
-              className="input"
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-            />
-          </label>
-          {error ? <div>{error}</div> : null}
-          <Button variant="primary" onClick={() => void handleLogin()}>
-            Login
-          </Button>
-        </div>
+    <div className="page">
+      <div className="page-header">
+        <h1>Login</h1>
+        <p>This MVP runs in demo mode. Login exists for parity, but write operations remain disabled.</p>
+      </div>
+      <div className="card form-card">
+        <label>
+          <span className="muted">Email</span>
+          <input value={email} onChange={(event) => setEmail(event.target.value)} />
+        </label>
+        <label>
+          <span className="muted">Password</span>
+          <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} />
+        </label>
+        <button onClick={() => void handleLogin()}>Request Demo Token</button>
+        <p>{message}</p>
       </div>
     </div>
   )

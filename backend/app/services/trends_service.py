@@ -1,35 +1,46 @@
-﻿from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session
 
-from app.db.models import District, RiskPrediction
+from app.db.models import District, Observation
+from app.services.risk_engine import RiskInputs, compute_risk
 
 
-def build_trends(db: Session, district_code: str, days: int) -> dict:
-    district = db.query(District).filter(District.code == district_code).first()
-    if not district:
-        return {"district_code": district_code, "district_name": "Unknown", "points": [], "summary": "District not found"}
+def build_trends(db: Session, district_id: int, days: int) -> dict:
+    district = db.get(District, district_id)
+    if district is None:
+        return {"district_id": district_id, "district_name": "Unknown", "points": []}
 
-    predictions = (
-        db.query(RiskPrediction)
-        .filter(RiskPrediction.district_id == district.id)
-        .order_by(RiskPrediction.predicted_on.asc())
+    observations = (
+        db.query(Observation)
+        .filter(Observation.district_id == district_id)
+        .order_by(Observation.observed_date.desc())
+        .limit(days)
         .all()
-    )[-days:]
-
-    summary = "Risk trend is stable."
-    if len(predictions) >= 2 and predictions[-1].risk_score > predictions[0].risk_score:
-        summary = "Risk is trending upward and needs closer monitoring."
-
-    return {
-        "district_code": district.code,
-        "district_name": district.name,
-        "points": [
+    )
+    points = []
+    for item in reversed(observations):
+        result = compute_risk(
+            RiskInputs(
+                baseline_water_level=item.baseline_water_level,
+                drainage_score=item.drainage_score,
+                sanitation_score=item.sanitation_score,
+                vulnerability_index=district.vulnerability_index,
+                population_density=item.population_density,
+                anomaly_score=item.anomaly_score,
+                previous_alerts_count=item.previous_alerts_count,
+                low_income_percent=district.low_income_percent,
+                health_access_score=district.health_access_score,
+                drinking_water_quality_score=district.drinking_water_quality_score,
+            )
+        )
+        points.append(
             {
-                "date": item.predicted_on.isoformat(),
-                "risk_score": item.risk_score,
-                "risk_level": item.risk_level,
-                "confidence_score": item.confidence_score,
+                "date": item.observed_date.isoformat(),
+                "score": result.score,
+                "risk_level": result.risk_level,
             }
-            for item in predictions
-        ],
-        "summary": summary,
+        )
+    return {
+        "district_id": district.id,
+        "district_name": district.district_name,
+        "points": points,
     }

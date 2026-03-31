@@ -1,7 +1,11 @@
-﻿def test_dashboard_summary(client, auth_header):
-    response = client.get("/api/dashboard/summary", headers=auth_header)
+def test_dashboard_summary(client):
+    response = client.get("/api/dashboard/summary")
     assert response.status_code == 200
     payload = response.json()
-    assert "kpis" in payload
-    assert len(payload["top_hotspots"]) >= 1
-   
+    assert payload["total_districts"] == 200
+
+
+def test_hotspots_non_empty(client):
+    response = client.get("/api/hotspots")
+    assert response.status_code == 200
+    assert len(response.json()) > 0

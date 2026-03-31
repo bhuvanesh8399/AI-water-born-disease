@@ -1,5 +1,5 @@
-﻿from datetime import datetime
+from datetime import date, datetime
 
 
-def iso_now() -> str:
-    return datetime.utcnow().isoformat()
+def parse_date(value: str) -> date:
+    return datetime.strptime(value, "%Y-%m-%d").date()

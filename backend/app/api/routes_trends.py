@@ -1,20 +1,16 @@
-﻿from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
-from app.db.models import User
 from app.db.session import get_db
-from app.schemas.trends import TrendsResponse
-from app.services.dashboard_service import get_current_user
 from app.services.trends_service import build_trends
 
 router = APIRouter()
 
 
-@router.get("/trends", response_model=TrendsResponse)
+@router.get("/trends")
 def trends(
-    district: str = Query(...),
-    days: int = Query(default=14, ge=3, le=30),
+    district_id: int = Query(..., ge=1),
+    days: int = Query(default=30, ge=1, le=365),
     db: Session = Depends(get_db),
-    _: User = Depends(get_current_user),
 ):
-    return build_trends(db, district, days)
+    return build_trends(db, district_id, days)

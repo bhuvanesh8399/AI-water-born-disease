@@ -1,23 +1,44 @@
-﻿import { AlertsPreview } from '../components/dashboard/AlertsPreview'
-import { ContributingFactorsCard } from '../components/dashboard/ContributingFactorsCard'
-import { DecisionSummary } from '../components/dashboard/DecisionSummary'
-import { KPIGrid } from '../components/dashboard/KPIGrid'
-import { useDashboardSummary } from '../features/dashboard/hooks'
+import { useEffect, useState } from 'react'
+import { getDashboardSummary } from '../services/dataSource'
+import type { DashboardResponse } from '../types/domain'
 
 export function DashboardPage() {
-  const { data, loading, error } = useDashboardSummary()
+  const [data, setData] = useState<DashboardResponse | null>(null)
+  const [error, setError] = useState('')
 
-  if (loading) return <div className="glass-card">Loading dashboard…</div>
-  if (error || !data) return <div className="glass-card">{error ?? 'No data available'}</div>
+  useEffect(() => {
+    void getDashboardSummary()
+      .then(setData)
+      .catch((err: Error) => setError(err.message))
+  }, [])
+
+  if (error) {
+    return <div>Failed to load dashboard: {error}</div>
+  }
+
+  if (!data) {
+    return <div>Loading dashboard...</div>
+  }
 
   return (
-    <div className="page-grid">
-      <KPIGrid items={data.kpis} />
-      <div className="inline-grid">
-        <DecisionSummary summary={data.decision_summary} />
-        <ContributingFactorsCard factors={data.contributing_factors} />
-      </div>
-      <AlertsPreview alerts={data.recent_alerts} />
+    <div>
+      <h1>Dashboard</h1>
+      <p>Total districts: {data.summary.total_districts}</p>
+      <p>High risk: {data.summary.high_risk_count}</p>
+      <p>Medium risk: {data.summary.medium_risk_count}</p>
+      <p>Low risk: {data.summary.low_risk_count}</p>
+      <p>Last updated: {new Date(data.summary.last_updated).toLocaleString()}</p>
+
+      <h2>Top hotspots</h2>
+      <ul>
+        {data.hotspots.map((spot) => (
+          <li key={spot.district_id}>
+            {spot.district_name} - {spot.risk_level} ({spot.risk_score.toFixed(3)})
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
+
+export default DashboardPage
